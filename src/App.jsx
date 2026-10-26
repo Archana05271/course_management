@@ -34,6 +34,9 @@ import Certificate from './pages/student/Certificate';
 import EnrollmentSuccess from './pages/student/EnrollmentSuccess';
 import NotificationsStudent from './pages/student/NotificationsStudent';
 
+// 404 Error Page
+import NotFound from './pages/NotFound';
+
 // Global Stylesheet Imports
 import './css/style.css';
 import './css/admin.css';
@@ -85,8 +88,8 @@ function App() {
           <Route path="notifications" element={<NotificationsStudent />} />
         </Route>
 
-        {/* Fallback Wildcard Route */}
-        <Route path="*" element={<Navigate to="/auth/login" replace />} />
+        {/* Fallback Wildcard Route for Frontend 404 Handling */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );
