@@ -1,75 +1,81 @@
-const {
-  getAllCourses,
-  getCourseById,
-  searchCoursesQuery,
-  createCourse,
-  updateCourse,
-  deleteCourse
-} = require("../services/courseService");
+import * as courseService from "../services/courseService.js";
 
-const getCourses = (req, res) => {
-  const courses = getAllCourses();
-  res.status(200).json({ success: true, count: courses.length, data: courses });
-};
-
-const getCourse = (req, res) => {
-  const course = getCourseById(req.params.id);
-  if (!course) {
-    return res.status(404).json({ success: false, message: "Course not found" });
-  }
-  res.status(200).json({ success: true, data: course });
-};
-
-// Search controller with 404 out-of-the-box handling
-const searchCourses = (req, res) => {
-  const { query } = req.query;
-
-  if (!query) {
-    return res.status(400).json({ success: false, message: "Search query parameter is required" });
-  }
-
-  const results = searchCoursesQuery(query);
-
-  if (results.length === 0) {
-    return res.status(404).json({
-      success: false,
-      message: `No courses found matching '${query}'. Subject is out of the box or unavailable.`
+export function getAllCourses(req, res, next) {
+  try {
+    const courses = courseService.getAllCourses();
+    return res.status(200).json({
+      success: true,
+      data: courses,
     });
+  } catch (error) {
+    next(error);
   }
+}
 
-  res.status(200).json({
-    success: true,
-    count: results.length,
-    data: results
-  });
-};
-
-const addCourse = (req, res) => {
-  const newCourse = createCourse(req.body);
-  res.status(201).json({ success: true, message: "Course created successfully", data: newCourse });
-};
-
-const editCourse = (req, res) => {
-  const updatedCourse = updateCourse(req.params.id, req.body);
-  if (!updatedCourse) {
-    return res.status(404).json({ success: false, message: "Course not found" });
+export function getCourseById(req, res, next) {
+  try {
+    const course = courseService.findCourseById(req.params.id);
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: "Course not found",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      data: course,
+    });
+  } catch (error) {
+    next(error);
   }
-  res.status(200).json({ success: true, message: "Course updated successfully", data: updatedCourse });
-};
+}
 
-const removeCourse = (req, res) => {
-  const deleted = deleteCourse(req.params.id);
-  if (!deleted) {
-    return res.status(404).json({ success: false, message: "Course not found" });
+export function createCourse(req, res, next) {
+  try {
+    const newCourse = courseService.addNewCourse(req.body);
+    return res.status(201).json({
+      success: true,
+      message: "Course created successfully",
+      data: newCourse,
+    });
+  } catch (error) {
+    next(error);
   }
-  res.status(200).json({ success: true, message: "Course deleted successfully" });
-};
+}
 
-module.exports = {
-  getCourses,
-  getCourse,
-  searchCourses,
-  addCourse,
-  editCourse,
-  removeCourse
-};
+export function updateCourse(req, res, next) {
+  try {
+    const updated = courseService.updateExistingCourse(req.params.id, req.body);
+    if (!updated) {
+      return res.status(404).json({
+        success: false,
+        message: "Course not found to update",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Course updated successfully",
+      data: updated,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export function deleteCourse(req, res, next) {
+  try {
+    const deleted = courseService.removeCourse(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        message: "Course not found to delete",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Course deleted successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+}

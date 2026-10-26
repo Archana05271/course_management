@@ -1,53 +1,35 @@
-const courses = require("../data/courses");
+import coursesData from '../data/courses.js';
 
-const getAllCourses = () => courses;
+let courses = [...coursesData];
 
-const getCourseById = (id) => courses.find(course => course.id === id);
+export function getAllCourses() {
+  return courses;
+}
 
-// Add search query matcher
-const searchCoursesQuery = (query) => {
-  const searchTerm = query.toLowerCase();
-  return courses.filter(course => 
-    course.courseName.toLowerCase().includes(searchTerm) ||
-    course.category.toLowerCase().includes(searchTerm) ||
-    course.description.toLowerCase().includes(searchTerm)
-  );
-};
+export function findCourseById(id) {
+  return courses.find(c => c.id === id);
+}
 
-const createCourse = (courseData) => {
+export function addNewCourse(courseData) {
   const newCourse = {
     id: Date.now().toString(),
-    ...courseData
+    ...courseData,
+    createdAt: new Date().toISOString()
   };
   courses.push(newCourse);
   return newCourse;
-};
+}
 
-const updateCourse = (id, courseData) => {
-  const index = courses.findIndex(course => course.id === id);
+export function updateExistingCourse(id, courseData) {
+  const index = courses.findIndex(c => c.id === id);
   if (index === -1) return null;
-
-  courses[index] = {
-    ...courses[index],
-    ...courseData,
-    id
-  };
+  courses[index] = { ...courses[index], ...courseData };
   return courses[index];
-};
+}
 
-const deleteCourse = (id) => {
-  const index = courses.findIndex(course => course.id === id);
-  if (index === -1) return false;
-
-  courses.splice(index, 1);
+export function removeCourse(id) {
+  const exists = courses.some(c => c.id === id);
+  if (!exists) return false;
+  courses = courses.filter(c => c.id !== id);
   return true;
-};
-
-module.exports = {
-  getAllCourses,
-  getCourseById,
-  searchCoursesQuery,
-  createCourse,
-  updateCourse,
-  deleteCourse
-};
+}

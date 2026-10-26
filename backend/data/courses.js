@@ -1,24 +1,18 @@
 const courses = [
   {
     id: "1",
-    courseName: "Python Programming",
-    courseCode: "CS101",
-    instructor: "Dr. Kumar",
-    duration: "8 Weeks",
+    courseName: "Full Stack Web Development",
     category: "Programming",
-    description: "Learn Python programming from beginner to advanced level.",
+    description: "Learn React, Node.js, and Express.",
     status: "Active"
   },
   {
     id: "2",
-    courseName: "Web Development",
-    courseCode: "WD101",
-    instructor: "Dr. Priya",
-    duration: "10 Weeks",
-    category: "Web Development",
-    description: "Learn modern web development.",
+    courseName: "Artificial Intelligence Foundations",
+    category: "AI & Machine Learning",
+    description: "Learn Python, Scikit-learn, and predictive modeling.",
     status: "Active"
   }
 ];
 
-module.exports = courses;
+export default courses;

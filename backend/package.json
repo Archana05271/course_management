@@ -1,6 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
+  "type": "module",
   "description": "Student Course Management Backend API",
   "main": "server.js",
   "scripts": {

@@ -1,8 +1,11 @@
-const notFound = (req, res) => {
-  res.status(404).json({
+// backend/middleware/notFoundMiddleware.js
+const notFound = (req, res, next) => {
+  const error = new Error(`Route not found - ${req.originalUrl}`);
+  res.status(404);
+  res.json({
     success: false,
-    message: `Route not found: ${req.originalUrl}`
+    message: `The requested URL '${req.originalUrl}' is out of bounds or unavailable.`
   });
 };
 
-module.exports = notFound;
+export default notFound;
