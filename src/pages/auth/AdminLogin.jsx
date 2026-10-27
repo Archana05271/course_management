@@ -1,78 +1,73 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { authApi } from '../../api/authApi';
 
-const AdminLogin = () => {
-  const navigate = useNavigate();
+export default function AdminLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleAdminLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
 
-    const registeredAdmin = JSON.parse(localStorage.getItem('ss_admin_account'));
+    try {
+      const response = await authApi.login({ email, password });
+      
+      // Save token and role to sessionStorage for Admin
+      const token = response.data?.token || response.token;
+      const role = response.data?.user?.role || response.data?.admin?.role || 'admin';
+      
+      if (token) {
+        sessionStorage.setItem('token', token);
+        sessionStorage.setItem('role', role);
+      }
 
-    // Verify account exists and credentials match
-    if (!registeredAdmin || registeredAdmin.email !== email || registeredAdmin.password !== password) {
-      setError('Access Denied: Admin account not registered. Please sign up first.');
-      return;
+      navigate('/admin/dashboard');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Invalid admin email or password');
+    } finally {
+      setLoading(false);
     }
-
-    // Set active user session
-    localStorage.setItem('ss_active_user', JSON.stringify({ ...registeredAdmin, role: 'admin' }));
-
-    // Redirect to Admin Dashboard
-    navigate('/admin/dashboard');
   };
 
   return (
-    <div className="auth-wrapper">
-      <div className="auth-card" style={{ background: '#ffffff', padding: '2rem', borderRadius: '8px', borderTop: '4px solid #0f172a' }}>
-        <h2 style={{ color: '#0f172a', marginBottom: '0.5rem' }}>Administrator Login</h2>
-        <p style={{ color: '#475569', fontSize: '0.9rem', marginBottom: '1rem' }}>
-          Sign in to manage StudySphere learning paths and operations.
+    <div className="auth-container">
+      <form onSubmit={handleLogin} className="auth-form">
+        <h2>Admin Login - StudySphere</h2>
+        {error && <div className="error-message" style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
+        
+        <div className="form-group">
+          <label>Admin Email</label>
+          <input 
+            type="email" 
+            value={email} 
+            onChange={(e) => setEmail(e.target.value)} 
+            required 
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Password</label>
+          <input 
+            type="password" 
+            value={password} 
+            onChange={(e) => setPassword(e.target.value)} 
+            required 
+          />
+        </div>
+
+        <button type="submit" disabled={loading} className="btn-primary">
+          {loading ? 'Logging in...' : 'Admin Login'}
+        </button>
+
+        <p style={{ marginTop: '15px', textAlign: 'center' }}>
+          Back to <Link to="/auth/student-login">Student Login</Link>
         </p>
-
-        {error && (
-          <div style={{ padding: '0.75rem', background: '#fef2f2', border: '1px solid #fca5a5', color: '#991b1b', borderRadius: '6px', fontSize: '0.85rem', marginBottom: '1rem' }}>
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleAdminLogin}>
-          <div className="form-group">
-            <label style={{ color: '#0f172a', fontWeight: 600 }}>Admin Email Address</label>
-            <input 
-              type="email" 
-              placeholder="admin@studysphere.com"
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
-              required 
-            />
-          </div>
-
-          <div className="form-group">
-            <label style={{ color: '#0f172a', fontWeight: 600 }}>Password</label>
-            <input 
-              type="password" 
-              placeholder="••••••••"
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              required 
-            />
-          </div>
-
-          <button type="submit" className="btn btn-dark" style={{ width: '100%', marginTop: '1rem', background: '#0f172a', color: '#fff', padding: '0.75rem', border: 'none', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}>
-            Login as Administrator
-          </button>
-        </form>
-
-        <p style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.85rem', color: '#475569' }}>
-          Not registered as an admin? <Link to="/auth/admin-signup" style={{ color: '#2563eb', fontWeight: 600 }}>Register Administrator Account</Link>
-        </p>
-      </div>
+      </form>
     </div>
   );
-};
-
-export default AdminLogin;
+}

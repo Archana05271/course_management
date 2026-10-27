@@ -46,6 +46,22 @@ import './css/learning.css';
 import './css/student.css';
 import './css/responsive.css';
 
+// Protected Route Component for RBAC (Task 11)
+function ProtectedRoute({ children, allowedRole }) {
+  const token = sessionStorage.getItem('token');
+  const role = sessionStorage.getItem('role');
+
+  if (!token) {
+    return <Navigate to="/auth/login" replace />;
+  }
+
+  if (allowedRole && role !== allowedRole) {
+    return <Navigate to={role === 'admin' ? '/admin/dashboard' : '/student/dashboard'} replace />;
+  }
+
+  return children;
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -59,8 +75,15 @@ function App() {
         <Route path="/auth/admin-login" element={<AdminLogin />} />
         <Route path="/auth/admin-signup" element={<AdminSignup />} />
 
-        {/* Admin Portal Section */}
-        <Route path="/admin" element={<AdminLayout />}>
+        {/* Admin Portal Section (Protected for Admin role) */}
+        <Route 
+          path="/admin" 
+          element={
+            <ProtectedRoute allowedRole="admin">
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="courses" element={<ManageCourses />} />
@@ -71,8 +94,15 @@ function App() {
           <Route path="notifications" element={<Notifications />} />
         </Route>
 
-        {/* Student Portal Section */}
-        <Route path="/student" element={<StudentLayout />}>
+        {/* Student Portal Section (Protected for Student role) */}
+        <Route 
+          path="/student" 
+          element={
+            <ProtectedRoute allowedRole="student">
+              <StudentLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<Navigate to="/student/dashboard" replace />} />
           <Route path="dashboard" element={<StudentDashboard />} />
           <Route path="browse" element={<BrowseCourses />} />

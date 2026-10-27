@@ -15,7 +15,17 @@ export default function StudentLogin() {
     setLoading(true);
 
     try {
-      await authApi.login({ email, password });
+      const response = await authApi.login({ email, password });
+      
+      // Save token and role to sessionStorage
+      const token = response.data?.token || response.token;
+      const role = response.data?.user?.role || response.data?.student?.role || 'student';
+      
+      if (token) {
+        sessionStorage.setItem('token', token);
+        sessionStorage.setItem('role', role);
+      }
+
       navigate('/student/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Invalid email or password');
